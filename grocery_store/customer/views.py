@@ -104,7 +104,7 @@ class CheckoutView(APIView):
 
     def post(self, request):
         try:
-            with transaction.atomic():  # ✅ Start an atomic transaction block
+            with transaction.atomic():  
                 cart = self.get_cart(request.user)
                 cart_items = CartItem.objects.filter(cart=cart)
 

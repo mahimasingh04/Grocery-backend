@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-from store.models import Product  # assuming Product is in store app
+from store.models import Product  
 
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
@@ -29,7 +29,7 @@ class WishlistItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('wishlist', 'product')  # prevent duplicates
+        unique_together = ('wishlist', 'product')  
 
     def __str__(self):
         return f"{self.product.name} in {self.wishlist.user.username}'s wishlist"

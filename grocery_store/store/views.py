@@ -30,9 +30,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             raise ValidationError({"error": str(e)})
 
     
-    # ----------------------------
-    # Custom /add/ endpoint
-    # ----------------------------
+   
     @action(detail=False, methods=['post'], url_path='add')
     def add_product(self, request):
         """
@@ -74,7 +72,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
       
         except Exception as e:
-        # 👇 Temporary debug to see the real issue
+        
             return Response({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def destroy(self, request, *args, **kwargs):
@@ -101,17 +99,17 @@ class SalesReportView(APIView):
             filter_type = request.query_params.get('filter')  # most_sold, least_sold, or category
             category = request.query_params.get('category')
 
-            # Base aggregation query
+            
             products = Product.objects.annotate(
                 total_quantity_sold=Sum('sales__quantity')
             ).order_by('-total_quantity_sold')
 
-            # Handle nulls (products with no sales)
+            
             products = products.annotate(
                 total_quantity_sold=Sum('sales__quantity')
             ).values('id', 'name', 'category', 'price', 'total_quantity_sold')
 
-            # Filter by category
+            
             if filter_type == 'category':
                 if not category:
                     return Response(
@@ -120,7 +118,7 @@ class SalesReportView(APIView):
                     )
                 products = products.filter(category__iexact=category)
 
-            # Handle most_sold and least_sold filters
+           
             elif filter_type == 'most_sold':
                 products = products.order_by('-total_quantity_sold')
             elif filter_type == 'least_sold':
@@ -131,7 +129,7 @@ class SalesReportView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Replace None values (for products never sold)
+            
             for p in products:
                 if p['total_quantity_sold'] is None:
                     p['total_quantity_sold'] = 0
