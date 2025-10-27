@@ -1,0 +1,66 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+env/
+.venv/
+ENV/
+env.bak/
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Django specific
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# Migrations (optional - if you want fresh migrations for new clones)
+# Uncomment this if you don't want to push migration files
+# */migrations/
+# !*/migrations/__init__.py
+
+# Environment variables
+*.env
+.env.*
+secrets.json
+
+# Coverage & Testing
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.cache
+.pytest_cache/
+
+# Pip & Dependency files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Build & Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# JetBrains
+*.iml
+.idea/
