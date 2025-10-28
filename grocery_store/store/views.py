@@ -2,6 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from django.db.models import Sum
 from .models import Sale
+from django.utils import timezone
+from django.db import models 
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -9,8 +11,12 @@ from .models import Product
 from rest_framework.decorators import action
 from .serializers import ProductSerializer
 from .permissions import IsStoreManager
-from store.models import Product, Sale
+from store.models import Product , Sale
 from .serializers import SalesReportSerializer
+from .models import PromoCode
+from .serializers import PromoCodeSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     """
@@ -143,3 +149,52 @@ class SalesReportView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class PromoCodeView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+         if getattr(request.user, 'role', None) != 'manager':
+            return Response(
+                {"error": "Only managers can create promo codes."},
+                status=status.HTTP_403_FORBIDDEN
+            ) 
+         serializer = PromoCodeSerializer(data=request.data)
+         if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Promo code created successfully"}, status=status.HTTP_201_CREATED)
+         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+ 
+    def get(self, request):
+        promo_codes = PromoCode.objects.filter(active=True, expiry_date__gt=timezone.now())
+        serializer = PromoCodeSerializer(promo_codes, many=True)
+        return Response(serializer.data)
+
+
+class ApplyPromoView(APIView):
+   
+    def post(self, request):
+        code = request.data.get("code")
+        try:
+            promo = PromoCode.objects.get(code=code)
+            if promo.is_valid():
+                return Response({"discount_percent": promo.discount_percent}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "Promo code expired or inactive"}, status=status.HTTP_400_BAD_REQUEST)
+        except PromoCode.DoesNotExist:
+            return Response({"error": "Invalid promo code"}, status=status.HTTP_404_NOT_FOUND)
+
+class LowStockAlertView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+      
+        if getattr(request.user, 'role', None) != 'manager':
+            return Response({"error": "Only managers can view low-stock alerts."}, status=status.HTTP_403_FORBIDDEN)
+        
+        low_stock_products = Product.objects.filter(stock__lte=models.F('low_stock_threshold'))
+        if not low_stock_products.exists():
+            return Response({"message": "All stocks are sufficient!"}, status=status.HTTP_200_OK)
+
+        data = [{"product": p.name, "quantity": p.stock} for p in low_stock_products]
+        return Response({"low_stock_alerts": data}, status=status.HTTP_200_OK)
