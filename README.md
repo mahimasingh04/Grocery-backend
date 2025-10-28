@@ -3,6 +3,7 @@
 A complete **Django + Django REST Framework** backend for managing a grocery store — supporting user authentication, product inventory, cart, wishlist, discounts, and low-stock alerts for managers.
 
 ---
+## Postman Collection: https://codex100.postman.co/workspace/docker~842a1901-90f6-4444-8b32-def8fa2ba517/collection/31841628-114c5637-43d8-486b-b2eb-0c5729f91ee0?action=share&creator=31841628
 
 ## 🚀 Features
 
